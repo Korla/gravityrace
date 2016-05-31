@@ -21,6 +21,7 @@
   "dependencies": {
     "babel-core": "6.7.2",
     "babel-loader": "6.2.4",
-    "css-loader": "0.23.1"
+    "css-loader": "0.23.1",
+    "three": "^0.77.1"
   }
 }
