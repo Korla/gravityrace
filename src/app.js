@@ -12,9 +12,9 @@ camera.position.z = 5;
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild( renderer.domElement );
+document.body.appendChild(renderer.domElement);
 
-var game = createGame(scene, camera);
+var game = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
 (function render (){
 	requestAnimationFrame(render);
 	renderer.render(game.next(), camera);
