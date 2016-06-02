@@ -1,5 +1,10 @@
 var THREE = require('three');
 
+var registeredKeys = {
+  37: -1,
+  39: 1
+}
+
 export function createGame(scene, top, bottom, left, width) {
   var planets = [];
   planets.push(createPlanet());
@@ -8,6 +13,10 @@ export function createGame(scene, top, bottom, left, width) {
   scene.add(...planets.map(p => p.mesh));
   var player = createPlayer();
   scene.add(player.mesh);
+
+  document.onkeydown = e => {
+    if(e && registeredKeys[e.keyCode]) player.input(registeredKeys[e.keyCode]);
+  };
 
   var next = () => {
     planets.forEach((p, i) => {
@@ -19,6 +28,7 @@ export function createGame(scene, top, bottom, left, width) {
         scene.add(planets[i].mesh);
       }
     });
+    player.mesh.position.setX(player.mesh.position.x + player.nextVelocity());
     return scene;
   }
 
@@ -41,24 +51,27 @@ export function createGame(scene, top, bottom, left, width) {
   }
 
   function createPlayer() {
-    var playerWidth = 10;
-    var playerHeight = 30;
-    var playerBottom = bottom + 100;
-    var coords = [
-      [0, playerBottom + playerHeight],
-      [-playerWidth, playerBottom],
-      [playerWidth, playerBottom]
-    ]
-    console.log(left + width - playerWidth);
     var geometry = new THREE.Geometry();
-    geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c, 0)));
+    geometry.vertices.push(...[
+      [0, bottom + 130],
+      [-10, bottom + 100],
+      [10, bottom + 100]
+    ].map(c => new THREE.Vector3(...c, 0)));
 
     geometry.faces.push(new THREE.Face3( 0, 1, 2 ));
     geometry.computeFaceNormals();
 
     var color = 0xff0000;
     var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color}));
-    return {mesh};
+    var acceleration = 0;
+    var velocity = 0;
+    var nextVelocity = () => {
+      velocity += acceleration *= 0.8;
+      if(Math.abs(velocity) < 0.01) velocity = 0;
+      return velocity;
+    }
+    var input = delta => acceleration += delta;
+    return {mesh, input, nextVelocity};
   }
 
   return {next}
