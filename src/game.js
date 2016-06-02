@@ -1,10 +1,5 @@
 var THREE = require('three');
 
-var colors = {
-  push: 0x0000ff,
-  pull: 0x00ff00
-};
-
 export function createGame(scene, top, bottom, left, width) {
   var planets = [];
   planets.push(createPlanet());
@@ -32,7 +27,7 @@ export function createGame(scene, top, bottom, left, width) {
     var x = left + Math.floor(width*Math.random());
     var speed = 2 + Math.floor(5*Math.random());
     var isPulling = Math.random() > 0.5;
-    var color = isPulling ? colors.pull : colors.push;
+    var color = 0x0000ff;
     var geometry = new THREE.SphereGeometry(size, 32, 32);
     var material = new THREE.MeshBasicMaterial({color});
     var mesh = new THREE.Mesh(geometry, material);
@@ -46,23 +41,23 @@ export function createGame(scene, top, bottom, left, width) {
   }
 
   function createPlayer() {
-    var playerWidth = 20;
-    var playerHeight = 20;
+    var playerWidth = 10;
+    var playerHeight = 30;
     var playerBottom = bottom + 100;
     var coords = [
-      [0, playerBottom + playerHeight, 0],
-      [playerWidth/2, playerBottom, 0],
-      [-playerWidth/2, playerBottom, 0]
+      [0, playerBottom + playerHeight],
+      [-playerWidth, playerBottom],
+      [playerWidth, playerBottom]
     ]
-    console.log(top, bottom, left, width);
-    console.log(coords);
+    console.log(left + width - playerWidth);
     var geometry = new THREE.Geometry();
-    geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c)));
+    geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c, 0)));
 
     geometry.faces.push(new THREE.Face3( 0, 1, 2 ));
     geometry.computeFaceNormals();
 
-    var mesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial());
+    var color = 0xff0000;
+    var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color}));
     return {mesh};
   }
 
