@@ -29,25 +29,26 @@ export function createGame(scene, top, bottom, left, width) {
       }
     });
     player.mesh.position.setX(player.mesh.position.x + player.nextVelocity());
+    if(collide(player, planets)) console.log('Collision')
     return scene;
   }
 
   function createPlanet(color) {
-    var size = 5 + Math.floor(20*Math.random());
+    var radius = 5 + Math.floor(20*Math.random());
     var x = left + Math.floor(width*Math.random());
     var speed = 2 + Math.floor(5*Math.random());
     var isPulling = Math.random() > 0.5;
     var color = 0x0000ff;
-    var geometry = new THREE.SphereGeometry(size, 32, 32);
+    var geometry = new THREE.SphereGeometry(radius, 32, 32);
     var material = new THREE.MeshBasicMaterial({color});
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.setX(x);
-    mesh.position.setY(top + size);
+    mesh.position.setY(top + radius);
     var dispose = () => {
       geometry.dispose();
       material.dispose();
     }
-    return {mesh, speed, dispose};
+    return {mesh, speed, dispose, radius};
   }
 
   function createPlayer() {
@@ -75,4 +76,18 @@ export function createGame(scene, top, bottom, left, width) {
   }
 
   return {next}
+}
+
+function collide(player, planets) {
+  return planets.some(p => isCloseEnough(p.mesh.position, player.mesh.position, p.radius));
+}
+
+function isCloseEnough(p1, p2, distance) {
+  var retVale = Math.sqrt(squareDiff(p1.x, p2.x) + squareDiff(p1.y, p2.y)) < distance;
+  if(retVale) console.log(p1, p2, distance);
+  return retVale
+}
+
+function squareDiff(a, b) {
+  return Math.pow(a - b, 2)
 }
