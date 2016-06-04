@@ -10,6 +10,9 @@ export function createGame(scene, top, bottom, left, width) {
   planets.push(createPlanet());
   planets.push(createPlanet());
   planets.push(createPlanet());
+  planets.push(createPlanet());
+  planets.push(createPlanet());
+  planets.push(createPlanet());
   scene.add(...planets.map(p => p.mesh));
   var player = createPlayer();
   scene.add(player.mesh);
@@ -29,14 +32,14 @@ export function createGame(scene, top, bottom, left, width) {
       }
     });
     player.mesh.position.setX(player.mesh.position.x + player.nextVelocity());
-    if(collide(player, planets)) console.log('Collision')
-    return scene;
+    var collided = collide(player, planets);
+    return {scene, collided};
   }
 
   function createPlanet(color) {
-    var radius = 5 + Math.floor(20*Math.random());
-    var x = left + Math.floor(width*Math.random());
-    var speed = 2 + Math.floor(5*Math.random());
+    var radius = 5 + Math.floor(20 * Math.random());
+    var x = left + Math.floor(width * Math.random());
+    var speed = 2 + Math.floor(5 * Math.random());
     var isPulling = Math.random() > 0.5;
     var color = 0x0000ff;
     var geometry = new THREE.SphereGeometry(radius, 32, 32);
@@ -53,25 +56,24 @@ export function createGame(scene, top, bottom, left, width) {
 
   function createPlayer() {
     var geometry = new THREE.Geometry();
-    geometry.vertices.push(...[
-      [0, bottom + 130],
-      [-10, bottom + 100],
-      [10, bottom + 100]
-    ].map(c => new THREE.Vector3(...c, 0)));
-
+    var coords = [[0, 30], [-10, 0], [10, 0]];
+    geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c, 0)));
     geometry.faces.push(new THREE.Face3( 0, 1, 2 ));
     geometry.computeFaceNormals();
 
     var color = 0xff0000;
     var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color}));
-    var acceleration = 0;
+    mesh.position.setY(bottom + 100);
+
     var velocity = 0;
+    var acceleration = 0;
     var nextVelocity = () => {
-      velocity += acceleration *= 0.8;
+      acceleration *= 0.8;
+      velocity += acceleration;
       if(Math.abs(velocity) < 0.01) velocity = 0;
       return velocity;
     }
-    var input = delta => acceleration += delta;
+    var input = delta => acceleration += delta/3;
     return {mesh, input, nextVelocity};
   }
 
@@ -79,13 +81,11 @@ export function createGame(scene, top, bottom, left, width) {
 }
 
 function collide(player, planets) {
-  return planets.some(p => isCloseEnough(p.mesh.position, player.mesh.position, p.radius));
+  return planets.some(p => getXYDistance(p.mesh.position, player.mesh.position) < p.radius + 5);
 }
 
-function isCloseEnough(p1, p2, distance) {
-  var retVale = Math.sqrt(squareDiff(p1.x, p2.x) + squareDiff(p1.y, p2.y)) < distance;
-  if(retVale) console.log(p1, p2, distance);
-  return retVale
+function getXYDistance({x: x1, y: y1}, {x: x2, y: y2}) {
+  return Math.sqrt(squareDiff(x1, x2) + squareDiff(y1, y2));
 }
 
 function squareDiff(a, b) {

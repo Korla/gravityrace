@@ -15,8 +15,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 var game = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
-(function render (){
-	requestAnimationFrame(render);
-
-	renderer.render(game.next(), camera);
+(function render() {
+	var state = game.next();
+	if(!state.collided) requestAnimationFrame(render);
+	renderer.render(state.scene, camera);
 })();
