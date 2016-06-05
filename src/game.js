@@ -12,8 +12,11 @@ export function createGame(scene, top, bottom, left, width) {
 
   var next = () => {
     var planetsAndDistance = planets.map(p => ({p, distance: getXYDistance(p.mesh.position, player.mesh.position)}));
-    var collided = planetsAndDistance.some(pd => pd.distance < pd.p.radius + 5);
-    if(!collided) {
+    var crashed =
+      planetsAndDistance.some(pd => pd.distance < pd.p.radius + 5) ||
+      player.mesh.position.x < left ||
+      player.mesh.position.x > left + width;
+    if(!crashed) {
       var planetsAndDistanceAndDx = planetsAndDistance.map(({p, distance}) => ({p, distance, dx: getDx(player.mesh.position, p.mesh.position)}))
       var force = planetsAndDistanceAndDx.reduce((force, pdd) => force += getForce(pdd), 0);
       player.mesh.position.setX(player.mesh.position.x + player.nextVelocity(force));
@@ -27,7 +30,7 @@ export function createGame(scene, top, bottom, left, width) {
         }
       });
     }
-    return {scene, collided};
+    return {scene, crashed};
   }
 
   var input = delta => player.input(delta);
