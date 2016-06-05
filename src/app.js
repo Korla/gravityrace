@@ -1,5 +1,6 @@
 var THREE = require('three');
 var {createGame} = require('./game');
+var {createKeyboard} = require('./keyboard');
 
 var scene = new THREE.Scene();
 
@@ -16,19 +17,11 @@ document.body.appendChild(renderer.domElement);
 
 var gui = document.querySelector('#gui');
 
-var registeredKeys = {
-  37: -1,
-  39: 1
-}
-
-document.onkeydown = e => {
-	if(e && registeredKeys[e.keyCode]) {
-		var current = game.input(registeredKeys[e.keyCode]);
-		gui.innerText = current;
-	}
-};
-
 var game = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
+createKeyboard(input => {
+  var text = game.input(input);
+  gui.innerText = text;
+});
 (function render() {
 	var state = game.next();
 	if(!state.collided) requestAnimationFrame(render);
