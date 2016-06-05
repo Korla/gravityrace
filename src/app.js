@@ -12,15 +12,17 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-var gui = document.querySelector('#gui');
+var thrustElem = document.querySelector('#thrust');
+var timeElem = document.querySelector('#time');
 
 var game = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
-createKeyboard(input => {
-  var text = game.input(input);
-  gui.innerText = text;
-});
+createKeyboard(input => thrustElem.innerText = game.input(input));
+var time = 0;
+var clock = new THREE.Clock();
 (function render() {
 	var state = game.next();
 	if(!state.crashed) requestAnimationFrame(render);
+  var currentTime = Math.floor(clock.getElapsedTime());
+  if(time !== currentTime) timeElem.innerText = time = currentTime;
 	renderer.render(state.scene, camera);
 })();
