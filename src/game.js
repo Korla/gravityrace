@@ -1,4 +1,5 @@
 var THREE = require('three');
+var {Planet} = require('./planet.js');
 
 var registeredKeys = {
   37: -1,
@@ -7,12 +8,7 @@ var registeredKeys = {
 
 export function createGame(scene, top, bottom, left, width) {
   var planets = [];
-  planets.push(createPlanet());
-  planets.push(createPlanet());
-  planets.push(createPlanet());
-  planets.push(createPlanet());
-  planets.push(createPlanet());
-  planets.push(createPlanet());
+  planets.push(new Planet(left, width, top));
   scene.add(...planets.map(p => p.mesh));
   var player = createPlayer();
   scene.add(player.mesh);
@@ -27,31 +23,13 @@ export function createGame(scene, top, bottom, left, width) {
       if(p.mesh.position.y < bottom) {
         scene.remove(p.mesh);
         p.dispose();
-        planets[i] = createPlanet();
+        planets[i] = new Planet(left, width, top);
         scene.add(planets[i].mesh);
       }
     });
     player.mesh.position.setX(player.mesh.position.x + player.nextVelocity());
     var collided = collide(player, planets);
     return {scene, collided};
-  }
-
-  function createPlanet(color) {
-    var radius = 5 + Math.floor(20 * Math.random());
-    var x = left + Math.floor(width * Math.random());
-    var speed = 2 + Math.floor(5 * Math.random());
-    var isPulling = Math.random() > 0.5;
-    var color = 0x0000ff;
-    var geometry = new THREE.SphereGeometry(radius, 32, 32);
-    var material = new THREE.MeshBasicMaterial({color});
-    var mesh = new THREE.Mesh(geometry, material);
-    mesh.position.setX(x);
-    mesh.position.setY(top + radius);
-    var dispose = () => {
-      geometry.dispose();
-      material.dispose();
-    }
-    return {mesh, speed, dispose, radius};
   }
 
   function createPlayer() {
