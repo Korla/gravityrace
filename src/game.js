@@ -35,8 +35,8 @@ export function createGame(scene, top, bottom, left, width) {
   return {next, input}
 }
 
-function getForce({p: {radius}, distance, dx}) {
-  return 0.5 * radius * dx / (distance * distance);
+function getForce({p: {radius, isPulling}, distance, dx}) {
+  return (isPulling ? 0.5 : -0.5) * radius * dx / (distance * distance);
 }
 
 function getXYDistance({x: x1, y: y1}, {x: x2, y: y2}) {
