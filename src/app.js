@@ -21,6 +21,6 @@ createKeyboard(input => {
 });
 (function render() {
 	var state = game.next();
-	if(!state.collided) requestAnimationFrame(render);
+	if(!state.crashed) requestAnimationFrame(render);
 	renderer.render(state.scene, camera);
 })();
