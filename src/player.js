@@ -4,19 +4,19 @@ export class Player {
   constructor(y, coords) {
     this.mesh = createMesh(coords);
     this.mesh.position.setY(y);
+    this.thrust = 0;
     this.acceleration = 0;
     this.velocity = 0;
   }
 
-  nextVelocity() {
-    this.acceleration *= 0.8;
+  nextVelocity(force) {
+    this.acceleration = this.thrust * 0.001 + force;
     this.velocity += this.acceleration;
-    if(Math.abs(this.velocity) < 0.01) this.velocity = 0;
     return this.velocity;
   }
 
   input(delta) {
-    this.acceleration += delta/3;
+    return this.thrust += delta * 10;
   }
 }
 

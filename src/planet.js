@@ -2,8 +2,8 @@ var THREE = require('three');
 
 export class Planet {
   constructor(left, width, top) {
-    this.radius = 5 + Math.floor(20 * Math.random());
-    this.speed = 2 + Math.floor(5 * Math.random());
+    this.radius = 20 + Math.floor(40 * Math.random());
+    this.speed = 1 + Math.floor(3 * Math.random());
     this.mesh = createMesh(this.radius);
     this.mesh.position.setX(left + Math.floor(width * Math.random()));
     this.mesh.position.setY(top + this.radius);
