@@ -20,15 +20,7 @@ export function createGame(scene, top, bottom, left, width) {
       var planetsAndDistanceAndDx = planetsAndDistance.map(({p, distance}) => ({p, distance, dx: getDx(player.mesh.position, p.mesh.position)}))
       var force = planetsAndDistanceAndDx.reduce((force, pdd) => force += getForce(pdd), 0);
       player.mesh.position.setX(player.mesh.position.x + player.nextVelocity(force));
-      planets.forEach((p, i) => {
-        p.mesh.position.setY(p.mesh.position.y - p.speed);
-        if(p.mesh.position.y < bottom - 1000) {
-          scene.remove(p.mesh);
-          p.dispose();
-          planets[i] = createPlanet();
-          scene.add(planets[i].mesh);
-        }
-      });
+      planets.forEach(p => p.next());
     }
     return {scene, crashed};
   }
