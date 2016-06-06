@@ -7,6 +7,7 @@ export function createGame(scene, top, bottom, left, width) {
   var planets = [];
   for(var i = 0; i < 5; i++) planets.push(createPlanet());
   scene.add(...planets.map(p => p.mesh));
+  scene.add(...planets.map(p => p.tinyMesh));
   var player = new Player(bottom + 100, [[0, 30], [-10, 0], [10, 0]]);
   scene.add(player.mesh);
 
@@ -26,6 +27,7 @@ export function createGame(scene, top, bottom, left, width) {
           p.dispose();
           p.init();
           scene.add(p.mesh);
+          scene.add(p.tinyMesh);
         }
       });
     }

@@ -16,7 +16,9 @@ export class Player {
   }
 
   input(delta) {
-    return this.thrust += delta * 10;
+    this.thrust += delta * 10;
+    this.mesh.rotation.z = Math.max(-1.6, Math.min(-this.thrust/100, 1.6));
+    return this.thrust;
   }
 }
 
