@@ -5,7 +5,7 @@ var {Player} = require('./player.js');
 export function createGame(scene, top, bottom, left, width) {
   var createPlanet = () => new Planet(left, width, top, bottom);
   var planets = [];
-  for(var i = 0; i < 5; i++) planets.push(createPlanet());
+  for(var i = 0; i < 1; i++) planets.push(createPlanet());
   scene.add(...planets.map(p => p.mesh));
   scene.add(...planets.map(p => p.tinyMesh));
   var player = new Player(bottom + 100, [[0, 30], [-10, 0], [10, 0]]);
@@ -24,6 +24,8 @@ export function createGame(scene, top, bottom, left, width) {
       planets.forEach(p => {
         p.next();
         if(p.mesh.position.y < bottom - 1000) {
+          scene.remove(p.mesh);
+          scene.remove(p.tinyMesh);
           p.dispose();
           p.init();
           scene.add(p.mesh);

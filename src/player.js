@@ -28,5 +28,5 @@ function createMesh(coords) {
   geometry.faces.push(new THREE.Face3(0, 1, 2));
   geometry.computeFaceNormals();
   var color = 0xff0000;
-  return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color}));
+  return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color, wireframe: true}));
 }
