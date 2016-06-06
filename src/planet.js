@@ -42,8 +42,8 @@ export class Planet {
 
 function createMesh(radius, color, x, y) {
   var mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 10, 10),
-    new THREE.MeshBasicMaterial({color, wireframe: true})
+    new THREE.SphereGeometry(radius, 32, 32),
+    new THREE.MeshPhongMaterial({color, transparent:true, opacity:1})
   );
   mesh.position.setX(x);
   mesh.position.setY(y);
