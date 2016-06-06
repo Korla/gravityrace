@@ -3,11 +3,12 @@ var {Planet} = require('./planet.js');
 var {Player} = require('./player.js');
 
 export function createGame(scene, top, bottom, left, width) {
-  var createPlanet = () => new Planet(left, width, top + 1000);
+  var createPlanet = () => new Planet(left, width, top, bottom);
   var planets = [];
   for(var i = 0; i < 5; i++) planets.push(createPlanet());
   scene.add(...planets.map(p => p.mesh));
-  var player = new Player(bottom + 100, [[0, 30], [-10, 0], [10, 0]]);
+  scene.add(...planets.map(p => p.tinyMesh));
+  var player = new Player(bottom + 100);
   scene.add(player.mesh);
 
   var next = () => {
@@ -20,13 +21,15 @@ export function createGame(scene, top, bottom, left, width) {
       var planetsAndDistanceAndDx = planetsAndDistance.map(({p, distance}) => ({p, distance, dx: getDx(player.mesh.position, p.mesh.position)}))
       var force = planetsAndDistanceAndDx.reduce((force, pdd) => force += getForce(pdd), 0);
       player.mesh.position.setX(player.mesh.position.x + player.nextVelocity(force));
-      planets.forEach((p, i) => {
-        p.mesh.position.setY(p.mesh.position.y - p.speed);
+      planets.forEach(p => {
+        p.next();
         if(p.mesh.position.y < bottom - 1000) {
           scene.remove(p.mesh);
+          scene.remove(p.tinyMesh);
           p.dispose();
-          planets[i] = createPlanet();
-          scene.add(planets[i].mesh);
+          p.init();
+          scene.add(p.mesh);
+          scene.add(p.tinyMesh);
         }
       });
     }

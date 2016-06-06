@@ -1,8 +1,10 @@
 var THREE = require('three');
 
 export class Player {
-  constructor(y, coords) {
-    this.mesh = createMesh(coords);
+  constructor(y) {
+    this.mesh = createMesh([
+      [0, 30, 0], [-10, 0, 0], [10, 0, 0], [0, 15, -10]
+    ]);
     this.mesh.position.setY(y);
     this.thrust = 0;
     this.acceleration = 0;
@@ -16,15 +18,17 @@ export class Player {
   }
 
   input(delta) {
-    return this.thrust += delta * 10;
+    this.thrust += delta * 10;
+    this.mesh.rotation.z = Math.max(-1.6, Math.min(-this.thrust/100, 1.6));
+    return this.thrust;
   }
 }
 
 function createMesh(coords) {
   var geometry = new THREE.Geometry();
-  geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c, 0)));
+  geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c)));
   geometry.faces.push(new THREE.Face3(0, 1, 2));
   geometry.computeFaceNormals();
   var color = 0xff0000;
-  return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color}));
+  return new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color, transparent:true, opacity:1}));
 }
