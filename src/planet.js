@@ -1,4 +1,5 @@
 var THREE = require('three');
+var {createPlanetMesh} = require('./objects');
 
 export class Planet {
   constructor(left, width, top, bottom) {
@@ -25,27 +26,17 @@ export class Planet {
     this.radius = 25 + Math.floor(40 * Math.random());
     this.speed = 1 + Math.floor(2 * Math.random());
     var x = this.left + Math.floor(this.width * Math.random());
-    this.mesh = createMesh(
+    this.mesh = createPlanetMesh(
       this.radius,
       color,
       x,
       this.top + 1000
     );
-    this.tinyMesh = createMesh(5, color, x, this.top - 10);
+    this.tinyMesh = createPlanetMesh(5, color, x, this.top - 10);
   }
 
   dispose() {
     this.mesh.geometry.dispose();
     this.mesh.material.dispose();
   }
-}
-
-function createMesh(radius, color, x, y) {
-  var mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 32, 32),
-    new THREE.MeshPhongMaterial({color, transparent:true, opacity:1})
-  );
-  mesh.position.setX(x);
-  mesh.position.setY(y);
-  return mesh;
 }
