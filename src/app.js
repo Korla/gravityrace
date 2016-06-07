@@ -2,6 +2,7 @@ var THREE = require('three');
 var {createGame} = require('./game');
 var {createKeyboard} = require('./keyboard');
 var {createLight} = require('./light');
+var {createPlanetMesh} = require('./objects');
 
 var scene = new THREE.Scene();
 
@@ -13,9 +14,8 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-var {ambientLight, lightbulb, light} = createLight();
+var {ambientLight, light} = createLight(window.innerWidth, window.innerHeight, 700);
 scene.add(ambientLight);
-scene.add(lightbulb);
 scene.add(light);
 
 var thrustElem = document.querySelector('#thrust');
@@ -32,3 +32,16 @@ var clock = new THREE.Clock();
   if(time !== currentTime) timeElem.innerText = time = currentTime;
 	renderer.render(state.scene, camera);
 })();
+
+// var l = 500;
+// var d = 150;
+// for(var y = -l; y < l; y += d) {
+// 	for(var x = -l - 300; x < l + 300; x += d) {
+// 		scene.add(createPlanetMesh(30, '#ff0000', x, y));
+// 	}
+// }
+//
+// (function render() {
+// 	requestAnimationFrame(render);
+// 	renderer.render(scene, camera);
+// })();
