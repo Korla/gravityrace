@@ -33,7 +33,7 @@ export function createGame(scene, top, bottom, left, width) {
         }
       });
     }
-    return {scene, crashed};
+    return {scene, crashed, player};
   }
 
   var input = delta => player.input(delta);

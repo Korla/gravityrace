@@ -5,7 +5,7 @@ export function createPlanetMesh(radius, color, x, y) {
   var material = new THREE.MeshPhongMaterial({color, transparent: true, opacity: 1});
   material.emissive.setHex(shadeColor20('#000022'));
   material.specular.setHex(shadeColor20('#333322'));
-  material.shininess = 10;
+  material.shininess = Math.random() * 10;
   var mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 32), material);
   mesh.position.setX(x);
   mesh.position.setY(y);
@@ -23,7 +23,7 @@ export function createPlayerMesh(coords) {
 }
 
 function shadeColor20(color) {
-  return shadeColor(color, -0.2 + Math.random() * 0.4);
+  return shadeColor(color, -0.5 + Math.random() * 0.5);
 }
 
 function shadeColor(color, percent) {

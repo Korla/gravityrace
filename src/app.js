@@ -27,7 +27,11 @@ var time = 0;
 var clock = new THREE.Clock();
 (function render() {
 	var state = game.next();
-	if(!state.crashed) requestAnimationFrame(render);
+	if(!state.crashed) {
+		requestAnimationFrame(render);
+	} else {
+		console.log(state.player);
+	}
   var currentTime = Math.floor(clock.getElapsedTime());
   if(time !== currentTime) timeElem.innerText = time = currentTime;
 	renderer.render(state.scene, camera);
@@ -37,7 +41,7 @@ var clock = new THREE.Clock();
 // var d = 150;
 // for(var y = -l; y < l; y += d) {
 // 	for(var x = -l - 300; x < l + 300; x += d) {
-// 		scene.add(createPlanetMesh(30, '#ff0000', x, y));
+// 		scene.add(createPlanetMesh(30, '#ffffff', x, y));
 // 	}
 // }
 //

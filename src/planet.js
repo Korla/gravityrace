@@ -22,7 +22,7 @@ export class Planet {
 
   init() {
     this.isPulling = Math.random() > 0.5;
-    var color = this.isPulling ? '#0000ff' : '#00ff00';
+    var color = this.isPulling ? '#3333ff' : '#33ff33';
     this.radius = 25 + 40 * Math.random();
     this.speed = 1 + 2 * Math.random();
     var x = this.left + Math.floor(this.width * Math.random());
