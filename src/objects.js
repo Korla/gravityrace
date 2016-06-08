@@ -17,8 +17,7 @@ export function createPlayerMesh(coords) {
   geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c)));
   geometry.faces.push(new THREE.Face3(0, 1, 2));
   geometry.computeFaceNormals();
-  var color = 0xff0000;
-  var material = new THREE.MeshPhongMaterial({color, transparent:true, opacity:1});
+  var material = new THREE.MeshPhongMaterial({color: 0xff0000, transparent:true, opacity:1});
   return new THREE.Mesh(geometry, material);
 }
 

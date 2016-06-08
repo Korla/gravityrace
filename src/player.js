@@ -23,4 +23,12 @@ export class Player {
     this.mesh.rotation.z = Math.max(-1.6, Math.min(-this.thrust/100, 1.6));
     return this.thrust;
   }
+
+  getData() {
+    return {
+      thrust: this.thrust,
+      acceleration: this.acceleration,
+      velocity: this.velocity
+    }
+  }
 }
