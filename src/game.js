@@ -11,34 +11,34 @@ export function createGame(scene, top, bottom, left, width) {
   var player = new Player(bottom + 100);
   scene.add(player.mesh);
 
-  var next = () => {
-    var planetsAndDistance = planets.map(p => ({p, distance: getXYDistance(p.mesh.position, player.mesh.position)}));
-    var crashed =
-      planetsAndDistance.some(pd => pd.distance < pd.p.radius + 5) ||
-      player.mesh.position.x < left ||
-      player.mesh.position.x > left + width;
-    if(!crashed) {
-      var planetsAndDistanceAndDx = planetsAndDistance.map(({p, distance}) => ({p, distance, dx: getDx(player.mesh.position, p.mesh.position)}))
-      var force = planetsAndDistanceAndDx.reduce((force, pdd) => force += getForce(pdd), 0);
-      player.mesh.position.setX(player.mesh.position.x + player.nextVelocity(force));
-      planets.forEach(p => {
-        p.next();
-        if(p.mesh.position.y < bottom - 1000) {
-          scene.remove(p.mesh);
-          scene.remove(p.tinyMesh);
-          p.dispose();
-          p.init();
-          scene.add(p.mesh);
-          scene.add(p.tinyMesh);
-        }
-      });
-    }
-    return {scene, crashed, player};
-  }
-
   var input = delta => player.input(delta);
 
-  return {next, input}
+  return {scene, planets, player, left, width, bottom}
+}
+
+export function nextState({scene, planets, player, left, width, bottom}) {
+  var planetsAndDistance = planets.map(p => ({p, distance: getXYDistance(p.mesh.position, player.mesh.position)}));
+  var crashed =
+    planetsAndDistance.some(pd => pd.distance < pd.p.radius + 5) ||
+    player.mesh.position.x < left ||
+    player.mesh.position.x > left + width;
+  if(!crashed) {
+    var planetsAndDistanceAndDx = planetsAndDistance.map(({p, distance}) => ({p, distance, dx: getDx(player.mesh.position, p.mesh.position)}))
+    var force = planetsAndDistanceAndDx.reduce((force, pdd) => force += getForce(pdd), 0);
+    player.mesh.position.setX(player.mesh.position.x + player.nextVelocity(force));
+    planets.forEach(p => {
+      p.next();
+      if(p.mesh.position.y < bottom - 1000) {
+        scene.remove(p.mesh);
+        scene.remove(p.tinyMesh);
+        p.dispose();
+        p.init();
+        scene.add(p.mesh);
+        scene.add(p.tinyMesh);
+      }
+    });
+  }
+  return {scene, planets, player, left, width, bottom, crashed};
 }
 
 function getForce({p: {radius, isPulling}, distance, dx}) {

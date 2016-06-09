@@ -1,5 +1,5 @@
 var THREE = require('three');
-var {createGame} = require('./game');
+var {createGame, nextState, playerInput} = require('./game');
 var {arrows, touch} = require('./input');
 var {createLight} = require('./light');
 var {createSpace} = require('./space');
@@ -30,26 +30,29 @@ Promise.all([
 	scene.add(ambientLight);
 	scene.add(light);
 
-	var game = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
-	inputDevice(input => thrustElem.innerText = game.input(input));
+	var state = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
+	inputDevice(input => {
+	  state.player.input(input);
+		thrustElem.innerText = state.player.thrust;
+	});
 	var data = [];
 	var time = 0;
 	var clock = new THREE.Clock();
-	(function render() {
-		var state = game.next();
+	(function tick(prev) {
+		state = nextState(prev);
 		if(!state.crashed) {
-			requestAnimationFrame(render);
+		  var currentTime = Math.floor(clock.getElapsedTime());
+		  if(time !== currentTime) {
+				timeElem.innerText = time = currentTime;
+				data.push(state.player.getData());
+			}
+			renderer.render(state.scene, camera);
+			requestAnimationFrame(() => tick(state));
 		} else {
 			//createGraph(svg, data);
 		}
 		space.rotateY(0.0001);
-	  var currentTime = Math.floor(clock.getElapsedTime());
-	  if(time !== currentTime) {
-			timeElem.innerText = time = currentTime;
-			data.push(state.player.getData());
-		}
-		renderer.render(state.scene, camera);
-	})();
+	})(state);
 
 	// var l = 500;
 	// var d = 150;
