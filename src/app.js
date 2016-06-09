@@ -3,6 +3,7 @@ var {createGame} = require('./game');
 var {createKeyboard} = require('./keyboard');
 var {createLight} = require('./light');
 var {createPlanetMesh} = require('./objects');
+var {createGraph} = require('./graph');
 
 var scene = new THREE.Scene();
 
@@ -32,6 +33,7 @@ new THREE.TextureLoader().load('img/space.png',
 var thrustElem = document.querySelector('#thrust');
 var timeElem = document.querySelector('#time');
 
+var svg = document.querySelector('svg');
 var game = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
 createKeyboard(input => thrustElem.innerText = game.input(input));
 var data = [];
@@ -42,7 +44,7 @@ var clock = new THREE.Clock();
 	if(!state.crashed) {
 		requestAnimationFrame(render);
 	} else {
-		console.log(data);
+		createGraph(svg, data);
 	}
 	if(space) space.rotateY(0.0001);
   var currentTime = Math.floor(clock.getElapsedTime());
