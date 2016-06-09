@@ -22,7 +22,6 @@ var timeElem = document.querySelector('#time');
 var svg = document.querySelector('svg');
 
 var inputDevice = matchMedia("(max-device-width: 1025px)").matches ? touch(renderer.domElement) : arrows(document);
-console.log(matchMedia("(max-device-width: 1025px)").matches, inputDevice);
 
 Promise.all([
 	createSpace('img/space.png')
@@ -41,9 +40,9 @@ Promise.all([
 		if(!state.crashed) {
 			requestAnimationFrame(render);
 		} else {
-			createGraph(svg, data);
+			//createGraph(svg, data);
 		}
-		if(space) space.rotateY(0.0001);
+		space.rotateY(0.0001);
 	  var currentTime = Math.floor(clock.getElapsedTime());
 	  if(time !== currentTime) {
 			timeElem.innerText = time = currentTime;
