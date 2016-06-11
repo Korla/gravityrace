@@ -1,10 +1,10 @@
 var THREE = require('three');
-var {createGame, nextState, playerInput} = require('./game');
 var {arrows, touch} = require('./input');
 var {createLight} = require('./light');
 var {createSpace} = require('./space');
-var {createPlanetMesh} = require('./objects');
-var {createGraph} = require('./graph');
+var game = require('./game');
+var planet = require('./planet.js');
+var player = require('./player.js');
 
 var scene = new THREE.Scene();
 var width = window.innerWidth;
@@ -23,6 +23,23 @@ var svg = document.querySelector('svg');
 
 var inputDevice = matchMedia("(max-device-width: 1025px)").matches ? touch(renderer.domElement) : arrows(document);
 
+var {top, left, bottom, right} = camera;
+var width = right - left;
+var planetMax = top + 1000;
+var planetMin = bottom - 1000;
+var tinyYTop = top - 10;
+var tinyYBottom = bottom + 10;
+var playerY = bottom + 100;
+
+var createPlayer = player.create(playerY);
+var generatePlanet = planet.generate(left)(width);
+var createPlanet = planet.create(planetMax)(tinyYTop)(generatePlanet);
+var resetPlanet = planet.reset(planetMax)(tinyYTop)(generatePlanet);
+var nextPlanet = planet.next(top)(bottom)(tinyYBottom);
+var evaluateCrash = game.evaluateCrash(left)(right);
+var nextState = game.next(planetMin)(nextPlanet)(resetPlanet)(evaluateCrash);
+var createGame = game.create(createPlayer)(createPlanet);
+
 Promise.all([
 	createSpace('img/space.png')
 ]).then(([space]) => {
@@ -30,9 +47,10 @@ Promise.all([
 	scene.add(ambientLight);
 	scene.add(light);
 
-	var state = createGame(scene, camera.top, camera.bottom, camera.left, camera.right - camera.left);
+	var state = createGame();
+	game.getMeshes(state).forEach(m => scene.add(m));
 	inputDevice(input => {
-	  state.player.input(input);
+		state.player = player.input(input)(state.player);
 		thrustElem.innerText = state.player.thrust;
 	});
 	var data = [];
@@ -44,9 +62,9 @@ Promise.all([
 		  var currentTime = Math.floor(clock.getElapsedTime());
 		  if(time !== currentTime) {
 				timeElem.innerText = time = currentTime;
-				data.push(state.player.getData());
+				data.push(player.getData(state.player));
 			}
-			renderer.render(state.scene, camera);
+			renderer.render(scene, camera);
 			requestAnimationFrame(() => tick(state));
 		} else {
 			//createGraph(svg, data);
