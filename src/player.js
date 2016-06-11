@@ -2,9 +2,7 @@ var THREE = require('three');
 var {createPlayerMesh} = require('./objects');
 
 var create = y => () => {
-  var mesh = createPlayerMesh([
-    [0, 30, 0], [-10, 0, 0], [10, 0, 0], [0, 15, -10]
-  ]);
+  var mesh = createPlayerMesh();
   mesh.position.setY(y);
   return {
     mesh,
