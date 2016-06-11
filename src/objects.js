@@ -16,12 +16,10 @@ var createTinyMesh = createPlanetMesh(5);
 
 function createPlayerMesh() {
   var coords = [[0, 30, 0], [-10, 0, 0], [10, 0, 0], [0, 15, 10]];
+  var faces = [[0,1,2],[0,1,3],[0,2,3],[1,2,3]];
   var geometry = new THREE.Geometry();
   geometry.vertices.push(...coords.map(c => new THREE.Vector3(...c)));
-  geometry.faces.push(new THREE.Face3(0,1,2));
-  geometry.faces.push(new THREE.Face3(0,1,3));
-  geometry.faces.push(new THREE.Face3(0,2,3));
-  geometry.faces.push(new THREE.Face3(1,2,3));
+  geometry.faces.push(...faces.map(f => new THREE.Face3(...f)));
   geometry.computeFaceNormals();
   var material = new THREE.MeshPhongMaterial({color: 0xff0000, transparent:true, opacity:1});
   return new THREE.Mesh(geometry, material);
