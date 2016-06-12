@@ -19,6 +19,7 @@ var {ambientLight, light} = createLight(width, height, 700);
 
 var thrustElem = document.querySelector('#thrust');
 var timeElem = document.querySelector('#time');
+var levelElem = document.querySelector('#level');
 var svg = document.querySelector('svg');
 
 var inputDevice = matchMedia("(max-device-width: 1025px)").matches ? touch(renderer.domElement) : arrows(document);
@@ -30,15 +31,20 @@ var planetMin = bottom - 1000;
 var tinyYTop = top - 10;
 var tinyYBottom = bottom + 10;
 var playerY = bottom + 100;
+var level = 1;
+var timePerLevel = 20;
 
+var addToScene = scene.add.bind(scene);
 var createPlayer = player.create(playerY);
 var generatePlanet = planet.generate(left)(width);
 var createPlanet = planet.create(planetMax)(tinyYTop)(generatePlanet);
 var resetPlanet = planet.reset(planetMax)(tinyYTop)(generatePlanet);
 var nextPlanet = planet.next(top)(bottom)(tinyYBottom);
 var evaluateCrash = game.evaluateCrash(left)(right);
-var nextState = game.next(planetMin)(nextPlanet)(resetPlanet)(evaluateCrash);
-var createGame = game.create(createPlayer)(createPlanet);
+var nextStateWithoutLevel = game.next(planetMin)(nextPlanet)(evaluateCrash)(resetPlanet);
+var nextState = nextStateWithoutLevel(level);
+var addPlanet = game.addPlanet(addToScene)(createPlanet);
+var createGame = game.create(addToScene)(createPlayer)(createPlanet);
 
 Promise.all([
 	createSpace('img/space.png')
@@ -48,7 +54,6 @@ Promise.all([
 	scene.add(light);
 
 	var state = createGame();
-	game.getMeshes(state).forEach(m => scene.add(m));
 	inputDevice(input => {
 		state.player = player.input(input)(state.player);
 		thrustElem.innerText = state.player.thrust;
@@ -56,21 +61,27 @@ Promise.all([
 	var data = [];
 	var time = 0;
 	var clock = new THREE.Clock();
-	(function tick(prev) {
-		state = nextState(prev);
+	(function tick() {
+		state = nextState(state);
 		if(!state.crashed) {
 		  var currentTime = Math.floor(clock.getElapsedTime());
 		  if(time !== currentTime) {
 				timeElem.innerText = time = currentTime;
 				data.push(player.getData(state.player));
+				if(time % timePerLevel === 0) {
+					state = addPlanet(state);
+					level = level + 1;
+					nextState = nextStateWithoutLevel(level);
+					levelElem.innerText = level;
+				}
 			}
 			renderer.render(scene, camera);
-			requestAnimationFrame(() => tick(state));
+			requestAnimationFrame(tick);
 		} else {
 			//createGraph(svg, data);
 		}
 		space.rotateY(0.0001);
-	})(state);
+	})();
 
 	// var l = 500;
 	// var d = 150;

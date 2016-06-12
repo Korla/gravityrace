@@ -1,19 +1,24 @@
 var THREE = require('three');
 var {createPlanetMesh, createTinyMesh} = require('./objects');
 
-var generate = left => width => () => {
+var generate = left => width => level => {
+  var levelFactor = 1 + level/5;
+  var baseSize = levelFactor * 25;
+  var sizeVariation = levelFactor * 40;
+  var baseSpeed = levelFactor;
+  var speedVariation = levelFactor * 2;
   var isPulling = Math.random() > 0.5;
   return {
     isPulling,
     color: isPulling ? '#3333ff' : '#33ff33',
-    radius: 25 + 40 * Math.random(),
-    speed: 1 + 2 * Math.random(),
+    radius: baseSize + sizeVariation * Math.random(),
+    speed: baseSpeed + speedVariation * Math.random(),
     x: left + Math.floor(width * Math.random())
   }
 }
 
 var create = planetMax => tinyYTop => generate => () => {
-  var planet = generate();
+  var planet = generate(1);
   planet.mesh = createPlanetMesh(planet.radius)(planetMax)(planet.color, planet.x);
   planet.tinyMesh = createTinyMesh(tinyYTop)(planet.color, planet.x);
   return planet;
@@ -30,8 +35,8 @@ var next = top => bottom => tinyYBottom => planet => {
   return planet;
 }
 
-var reset = planetMax => tinyYTop => generate => planet => {
-  var newPlanet = generate();
+var reset = planetMax => tinyYTop => generate => (planet, level) => {
+  var newPlanet = generate(level);
   newPlanet.mesh = planet.mesh;
   newPlanet.mesh.position.setY(planetMax);
   newPlanet.mesh.position.setX(newPlanet.x);

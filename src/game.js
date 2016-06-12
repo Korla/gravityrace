@@ -2,11 +2,12 @@ var THREE = require('three');
 var {nextVelocity: nextPlayerVelocity, move: movePlayer} = require('./player');
 var planet = require('./planet');
 
-var create = createPlayer => createPlanet => () => {
-  var planets = [];
-  for(var i = 0; i < 5; i++) planets.push(createPlanet({}));
+var create = addToScene => createPlayer => createPlanet => () => {
+  var planets = [createPlanet({}), createPlanet({}), createPlanet({})];
   var player = createPlayer();
-  return {planets, player}
+  var state = {planets, player};
+	getMeshes(state).forEach(m => addToScene(m));
+  return state;
 }
 
 var evaluateCrash = left => right => ({player, planets}) => {
@@ -23,20 +24,27 @@ var getForce = (player, planetsAndDistance) => {
   return planetsAndDistanceAndDx.reduce((force, pdd) => force += getForceFromPlanet(pdd), 0);
 }
 
-var next = planetMin => nextPlanet => resetPlanet => evaluateCrash => ({player, planets}, force) => {
+var next = planetMin => nextPlanet => evaluateCrash => resetPlanet => level => ({player, planets}) => {
   var {planetsAndDistance, crashed} = evaluateCrash({player, planets});
   if(!crashed) {
     var force = getForce(player, planetsAndDistance)
     player = movePlayer(nextPlayerVelocity(force)(player));
     planets = planets.map(p => nextPlanet(p));
-    planets.filter(p => p.mesh.position.y < planetMin).forEach(p => resetPlanet(p));
+    planets.filter(p => p.mesh.position.y < planetMin).forEach(p => resetPlanet(p, level));
   }
   return {planets, player, crashed}
 }
 
+var addPlanet = addToScene => createPlanet => state => {
+  var newPlanet = createPlanet();
+  state.planets.push(newPlanet);
+  planet.getMeshes(newPlanet).forEach(m => addToScene(m));
+  return state;
+}
+
 var getMeshes = state => [state.player.mesh].concat(state.planets.reduce((meshes, p) => meshes.concat(planet.getMeshes(p)), []));
 
-export {create, evaluateCrash, getForce, next, getMeshes};
+export {create, evaluateCrash, getForce, next, getMeshes, addPlanet};
 
 function getForceFromPlanet({p: {radius, isPulling}, distance, dx}) {
   return (isPulling ? 0.5 : -0.5) * radius * dx / (distance * distance);
