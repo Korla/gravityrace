@@ -1,5 +1,4 @@
 var THREE = require('three');
-var {createPlanetMesh, createTinyMesh} = require('./objects');
 
 var generate = left => width => level => {
   var levelFactor = 1 + level/5;
@@ -10,22 +9,24 @@ var generate = left => width => level => {
   var isPulling = Math.random() > 0.5;
   return {
     isPulling,
-    color: isPulling ? '#3333ff' : '#33ff33',
+    color: isPulling ? '#73B8E6' : '#7FE673',
     radius: baseSize + sizeVariation * Math.random(),
     speed: baseSpeed + speedVariation * Math.random(),
     x: left + Math.floor(width * Math.random())
   }
 }
 
-var create = planetMax => tinyYTop => generate => () => {
+var create = generate => createPlanetMesh => createTinyMesh => () => {
   var planet = generate(1);
-  planet.mesh = createPlanetMesh(planet.radius)(planetMax)(planet.color, planet.x);
-  planet.tinyMesh = createTinyMesh(tinyYTop)(planet.color, planet.x);
+  planet.mesh = createPlanetMesh(planet.radius)(planet.color, planet.x);
+  planet.tinyMesh = createTinyMesh(planet.color, planet.x);
   return planet;
 }
 
 var next = top => bottom => tinyYBottom => planet => {
   planet.mesh.position.setY(planet.mesh.position.y - planet.speed);
+  planet.mesh.rotateY(0.01);
+  planet.tinyMesh.rotateY(0.01);
   if(planet.mesh.position.y < bottom) {
     planet.tinyMesh.position.setY(tinyYBottom);
     planet.tinyMesh.visible = true;

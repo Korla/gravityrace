@@ -1,10 +1,12 @@
 var THREE = require('three');
 var {arrows, touch} = require('./input');
 var {createLight} = require('./light');
-var {createSpace} = require('./space');
+var {create: createSpace} = require('./space');
 var game = require('./game');
 var planet = require('./planet.js');
 var player = require('./player.js');
+var menu = require('./menu.js');
+var objects = require('./objects');
 
 var scene = new THREE.Scene();
 var width = window.innerWidth;
@@ -15,13 +17,7 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height);
 document.body.appendChild(renderer.domElement);
 
-var {ambientLight, light} = createLight(width, height, 700);
-
-var thrustElem = document.querySelector('#thrust');
-var timeElem = document.querySelector('#time');
-var levelElem = document.querySelector('#level');
-var svg = document.querySelector('svg');
-
+var {thrustElem, timeElem, levelElem, svg} = menu.create(document);
 var inputDevice = matchMedia("(max-device-width: 1025px)").matches ? touch(renderer.domElement) : arrows(document);
 
 var {top, left, bottom, right} = camera;
@@ -34,22 +30,33 @@ var playerY = bottom + 100;
 var level = 1;
 var timePerLevel = 20;
 
-var addToScene = scene.add.bind(scene);
-var createPlayer = player.create(playerY);
-var generatePlanet = planet.generate(left)(width);
-var createPlanet = planet.create(planetMax)(tinyYTop)(generatePlanet);
-var resetPlanet = planet.reset(planetMax)(tinyYTop)(generatePlanet);
-var nextPlanet = planet.next(top)(bottom)(tinyYBottom);
-var evaluateCrash = game.evaluateCrash(left)(right);
-var nextStateWithoutLevel = game.next(planetMin)(nextPlanet)(evaluateCrash)(resetPlanet);
-var nextState = nextStateWithoutLevel(level);
-var addPlanet = game.addPlanet(addToScene)(createPlanet);
-var createGame = game.create(addToScene)(createPlayer)(createPlanet);
+var loadFn = loader => url => new Promise((resolve, rej) => loader.load(url, result => resolve(result)));
+var load = loadFn(new THREE.TextureLoader());
 
 Promise.all([
-	createSpace('img/space.png')
-]).then(([space]) => {
+	load('img/bump.jpg'),
+	load('img/spec.jpg'),
+	load('img/cloud.png'),
+	load('img/space.png'),
+]).then(([bump, spec, cloud, spaceMap]) => {
+	var addToScene = scene.add.bind(scene);
+	var createPlayer = player.create(playerY);
+	var generatePlanet = planet.generate(left)(width);
+	var createPlanetBase = objects.createPlanetMesh(bump)(spec)(cloud);
+	var createPlanetMesh = createPlanetBase(planetMax);
+	var createTinyMesh = createPlanetBase(tinyYTop)(5);
+	var createPlanet = planet.create(generatePlanet)(createPlanetMesh)(createTinyMesh);
+	var resetPlanet = planet.reset(planetMax)(tinyYTop)(generatePlanet);
+	var nextPlanet = planet.next(top)(bottom)(tinyYBottom);
+	var evaluateCrash = game.evaluateCrash(left)(right);
+	var nextStateWithoutLevel = game.next(planetMin)(nextPlanet)(evaluateCrash)(resetPlanet);
+	var nextState = nextStateWithoutLevel(level);
+	var addPlanet = game.addPlanet(addToScene)(createPlanet);
+	var createGame = game.create(addToScene)(createPlayer)(createPlanet);
+
+	var space = createSpace(spaceMap);
 	scene.add(space);
+	var {ambientLight, light} = createLight(width, height, 700);
 	scene.add(ambientLight);
 	scene.add(light);
 
@@ -83,16 +90,10 @@ Promise.all([
 		space.rotateY(0.0001);
 	})();
 
-	// var l = 500;
-	// var d = 150;
-	// var planets = [];
-	// for(var y = -l; y < l; y += d) {
-	// 	for(var x = -l - 300; x < l + 300; x += d) {
-	// 		planets.push(createPlanetMesh(30, '#ffffff', x, y));
-	// 	}
-	// }
-	// planets.forEach(p => scene.add(p));
-
+	// var generate = planet.generate(left + 300)(0);
+	// var p = planet.create(top - 300)(top - 10)(generate)();
+	// planet.getMeshes(p).forEach(m => addToScene(m));
+	//
 	// (function render() {
 	// 	requestAnimationFrame(render);
 	// 	renderer.render(scene, camera);
