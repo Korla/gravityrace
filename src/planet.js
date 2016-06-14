@@ -1,42 +1,53 @@
 var THREE = require('three');
-var {createPlanetMesh} = require('./objects');
 
-export class Planet {
-  constructor(left, width, top, bottom) {
-    this.left = left;
-    this.width = width;
-    this.top = top;
-    this.bottom = bottom;
-    this.init();
-  }
-
-  next() {
-    this.mesh.position.setY(this.mesh.position.y - this.speed);
-    if(this.mesh.position.y < this.bottom) {
-      this.tinyMesh.position.setY(this.bottom + 10);
-      this.tinyMesh.visible = true;
-    } else if(this.mesh.position.y < this.top) {
-      this.tinyMesh.visible = false;
-    }
-  }
-
-  init() {
-    this.isPulling = Math.random() > 0.5;
-    var color = this.isPulling ? '#3333ff' : '#33ff33';
-    this.radius = 25 + 40 * Math.random();
-    this.speed = 1 + 2 * Math.random();
-    var x = this.left + Math.floor(this.width * Math.random());
-    this.mesh = createPlanetMesh(
-      this.radius,
-      color,
-      x,
-      this.top + 1000
-    );
-    this.tinyMesh = createPlanetMesh(5, color, x, this.top - 10);
-  }
-
-  dispose() {
-    this.mesh.geometry.dispose();
-    this.mesh.material.dispose();
+var generate = left => width => level => {
+  var levelFactor = 1 + level/5;
+  var baseSize = levelFactor * 25;
+  var sizeVariation = levelFactor * 40;
+  var baseSpeed = levelFactor;
+  var speedVariation = levelFactor * 2;
+  var isPulling = Math.random() > 0.5;
+  return {
+    isPulling,
+    color: isPulling ? '#73B8E6' : '#7FE673',
+    radius: baseSize + sizeVariation * Math.random(),
+    speed: baseSpeed + speedVariation * Math.random(),
+    x: left + Math.floor(width * Math.random())
   }
 }
+
+var create = generate => createPlanetMesh => createTinyMesh => () => {
+  var planet = generate(1);
+  planet.mesh = createPlanetMesh(planet.radius)(planet.color, planet.x);
+  planet.tinyMesh = createTinyMesh(planet.color, planet.x);
+  return planet;
+}
+
+var next = top => bottom => tinyYBottom => planet => {
+  planet.mesh.position.setY(planet.mesh.position.y - planet.speed);
+  planet.mesh.rotateY(0.01);
+  planet.tinyMesh.rotateY(0.01);
+  if(planet.mesh.position.y < bottom) {
+    planet.tinyMesh.position.setY(tinyYBottom);
+    planet.tinyMesh.visible = true;
+  } else if(planet.mesh.position.y < top) {
+    planet.tinyMesh.visible = false;
+  }
+  return planet;
+}
+
+var reset = planetMax => tinyYTop => generate => (planet, level) => {
+  var newPlanet = generate(level);
+  newPlanet.mesh = planet.mesh;
+  newPlanet.mesh.position.setY(planetMax);
+  newPlanet.mesh.position.setX(newPlanet.x);
+  newPlanet.tinyMesh = planet.tinyMesh;
+  newPlanet.tinyMesh.position.setY(tinyYTop);
+  newPlanet.tinyMesh.position.setX(newPlanet.x);
+  newPlanet.tinyMesh.visible = true;
+  return newPlanet;
+}
+
+var getMeshes = ({mesh, tinyMesh}) => [mesh, tinyMesh];
+
+export {create, next, generate, reset, getMeshes};
