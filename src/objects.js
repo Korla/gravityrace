@@ -7,7 +7,7 @@ var createPlanetMesh = bump => spec => cloud => y => radius => (color, x) => {
   material.specular.setHex(darken('#333322'));
   material.shininess = Math.random() * 10;
   material.bumpMap = bump;
-  material.bumpScale = 2;
+  material.bumpScale = random(2, 0.5);
   material.specularMap = spec;
   material.specular = new THREE.Color(0x333333);
   var mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 32), material);
@@ -44,8 +44,8 @@ var shadeColor = percent => color => {
   var f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
   return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
 }
-var darken = shadeColor(-0.5 + Math.random() * 0.5);
-var lighten = shadeColor(1 - Math.random() * 0.5);
+var darken = color => shadeColor(random(-0.5, 0.2))(color);
+var lighten = color => shadeColor(random(0.5, 0.2))(color);
 
 function random(value, diff) {
   var delta = diff + 2 * Math.random() * (1 - diff);
